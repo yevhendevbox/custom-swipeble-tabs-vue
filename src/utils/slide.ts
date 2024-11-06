@@ -4,10 +4,43 @@ import { SlideType } from '@/utils/const_var'
 import { nextTick } from 'vue'
 import { _css } from '@/utils/dom'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-function checkEvent(e) {
-  const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent)
+interface CustomPointerEvent extends PointerEvent {
+  touches?: Array<{ clientX: number; clientY: number; pageX: number; pageY: number }>;
+}
+
+declare global {
+  interface Window {
+    isMoved: boolean;
+  }
+}
+
+interface StateInterface {
+  judgeValue: number;
+  type: number;
+  name: string;
+  localIndex: number;
+  needCheck: boolean;
+  next: boolean;
+  isDown: boolean;
+  start: {
+    x: number;
+    y: number;
+    time: number
+  };
+  move: {
+    x: number;
+    y: number
+  };
+  wrapper: {
+    width: number;
+    height: number;
+    childrenLength: number
+  }
+}
+
+function checkEvent(e: CustomPointerEvent): boolean {
+  const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+
   if (!isMobile || (isMobile && e instanceof PointerEvent)) {
     e.touches = [
       {
@@ -16,15 +49,15 @@ function checkEvent(e) {
         pageX: e.pageX,
         pageY: e.pageY,
       },
-    ]
+    ];
   }
-  return true
+
+  return true;
 }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function slideInit(el: HTMLElement, state) {
-  state.wrapper.width = _css(el, 'width')
-  state.wrapper.height = _css(el, 'height')
+
+export function slideInit(el: HTMLElement, state: StateInterface) {
+  state.wrapper.width = _css(el, 'width') as number
+  state.wrapper.height = _css(el, 'height') as number
   nextTick(() => {
     state.wrapper.childrenLength = el.children.length
   })
@@ -38,9 +71,7 @@ export function slideInit(el: HTMLElement, state) {
   _css(el, 'transform', `translate3d(${dx1}px, ${dx2}px, 0)`)
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function canSlide(state) {
+export function canSlide(state: StateInterface) {
   if (state.needCheck) {
     if (
       Math.abs(state.move.x) > state.judgeValue ||
@@ -57,183 +88,180 @@ export function canSlide(state) {
   }
   return state.next
 }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-function canNext(state, isNext) {
+
+function canNext(state: StateInterface, isNext: boolean) {
   return !(
     (state.localIndex === 0 && !isNext) ||
     (state.localIndex === state.wrapper.childrenLength - 1 && isNext)
   )
 }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function slideTouchStart(e, el, state) {
+
+export function slideTouchStart(e: CustomPointerEvent, el: HTMLElement | null, state: StateInterface) {
   if (!checkEvent(e)) return
-  _css(el, 'transition-duration', `0ms`)
-  state.start.x = e.touches[0].pageX
-  state.start.y = e.touches[0].pageY
-  state.start.time = Date.now()
-  state.isDown = true
+
+  if (el) {
+    _css(el, 'transition-duration', `0ms`)
+  }
+
+  if (e.touches) {
+    state.start.x = e.touches[0].pageX
+    state.start.y = e.touches[0].pageY
+    state.start.time = Date.now()
+    state.isDown = true
+  }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function slideTouchMove(e, el, state,
-  canNextCb = null,
-  notNextCb = null,
-  slideOtherDirectionCb = null,
-) {
-  if (!checkEvent(e)) return
-  if (!state.isDown) return
+export function slideTouchMove(
+  e: CustomPointerEvent,
+  el: HTMLElement | null,
+  state: StateInterface,
+  canNextCb?: (state: StateInterface, isNext: boolean) => boolean,
+  notNextCb?: () => void,
+  slideOtherDirectionCb?: (e: CustomPointerEvent) => void
+): void {
+  if (!checkEvent(e)) return;
+  if (!state.isDown) return;
 
-  state.move.x = e.touches[0].pageX - state.start.x
-  state.move.y = e.touches[0].pageY - state.start.y
+  if (e.touches) {
+    state.move.x = e.touches[0].pageX - state.start.x;
+    state.move.y = e.touches[0].pageY - state.start.y;
+  }
 
-  const canSlideRes = canSlide(state)
+
+  const canSlideRes = canSlide(state);
 
   const isNext =
-    state.type === SlideType.HORIZONTAL ? state.move.x < 0 : state.move.y < 0
+    state.type === SlideType.HORIZONTAL ? state.move.x < 0 : state.move.y < 0;
 
   if (state.type === SlideType.VERTICAL_INFINITE) {
     if (canSlideRes && state.localIndex === 0 && !isNext) {
-      bus.emit(state.name + '-moveY', state.move.y)
+      bus.emit(state.name + '-moveY', state.move.y);
     }
   }
 
   if (canSlideRes) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    if (!canNextCb) canNextCb = canNext
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    if (canNextCb(state, isNext)) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      window.isMoved = true
+    if (!canNextCb) canNextCb = canNext;
 
-      _stopPropagation(e)
+    if (canNextCb(state, isNext)) {
+      window.isMoved = true;
+
+      _stopPropagation(e);
       if (state.type === SlideType.HORIZONTAL) {
-        bus.emit(state.name + '-moveX', state.move.x)
+        bus.emit(state.name + '-moveX', state.move.x);
       }
       const t =
-        getSlideOffset(state, el) +
-        (isNext ? state.judgeValue : -state.judgeValue)
+        getSlideOffset(state, el as HTMLDivElement) +
+        (isNext ? state.judgeValue : -state.judgeValue);
       let dx1 = 0,
-        dx2 = 0
+        dx2 = 0;
       if (state.type === SlideType.HORIZONTAL) {
-        dx1 = t + state.move.x
+        dx1 = t + state.move.x;
       } else {
-        dx2 = t + state.move.y
+        dx2 = t + state.move.y;
       }
-      _css(el, 'transition-duration', `0ms`)
-      _css(el, 'transform', `translate3d(${dx1}px, ${dx2}px, 0)`)
+
+      if (el) {
+        _css(el, 'transition-duration', `0ms`);
+        _css(el, 'transform', `translate3d(${dx1}px, ${dx2}px, 0)`);
+      }
     } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      notNextCb?.()
+      notNextCb?.();
     }
   } else {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    slideOtherDirectionCb?.(e)
+    slideOtherDirectionCb?.(e);
   }
 }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function slideTouchEnd(e, state,
-  canNextCb = null,
-  nextCb = null,
-  notNextCb = null,
-) {
-  if (!checkEvent(e)) return
-  if (!state.isDown) return
+
+export function slideTouchEnd(
+  e: CustomPointerEvent,
+  state: StateInterface,
+  canNextCb?: (state: StateInterface, isNext: boolean) => boolean,
+  nextCb?: (isNext: boolean) => void,
+  notNextCb?: () => void
+): void {
+  if (!checkEvent(e)) return;
+  if (!state.isDown) return;
 
   if (state.next) {
-    const isHorizontal = state.type === SlideType.HORIZONTAL
-    const isNext = isHorizontal ? state.move.x < 0 : state.move.y < 0
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    if (!canNextCb) canNextCb = canNext
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
+    const isHorizontal = state.type === SlideType.HORIZONTAL;
+    const isNext = isHorizontal ? state.move.x < 0 : state.move.y < 0;
+
+    if (!canNextCb) canNextCb = canNext;
+
     if (canNextCb(state, isNext)) {
-      const endTime = Date.now()
-      let gapTime = endTime - state.start.time
-      const distance = isHorizontal ? state.move.x : state.move.y
-      const judgeValue = isHorizontal
-        ? state.wrapper.width
-        : state.wrapper.height
-      if (Math.abs(distance) < 20) gapTime = 1000
-      if (Math.abs(distance) > judgeValue / 3) gapTime = 100
+      const endTime = Date.now();
+      let gapTime = endTime - state.start.time;
+      const distance = isHorizontal ? state.move.x : state.move.y;
+      const judgeValue = isHorizontal ? state.wrapper.width : state.wrapper.height;
+
+      if (Math.abs(distance) < 20) gapTime = 1000;
+      if (Math.abs(distance) > judgeValue / 3) gapTime = 100;
+
       if (gapTime < 150) {
         if (isNext) {
-          state.localIndex++
+          state.localIndex++;
         } else {
-          state.localIndex--
+          state.localIndex--;
         }
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        return nextCb?.(isNext)
+        return nextCb?.(isNext);
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      return notNextCb?.()
+      return notNextCb?.();
     }
   } else {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    notNextCb?.()
+    notNextCb?.();
   }
 }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function slideReset(e, el, state, emit = null) {
-  if (!checkEvent(e)) return
 
-  _css(el, 'transition-duration', `300ms`)
-  const t = getSlideOffset(state, el)
-  let dx1 = 0
-  let dx2 = 0
+export function slideReset(
+  e: CustomPointerEvent,
+  el: HTMLElement,
+  state: StateInterface,
+  // eslint-disable-next-line
+  emit?: (event: string, value?: any) => void
+): void {
+  if (!checkEvent(e)) return;
+
+  _css(el, 'transition-duration', `300ms`);
+  const t = getSlideOffset(state, el as HTMLDivElement);
+  let dx1 = 0;
+  let dx2 = 0;
+
   if (state.type === SlideType.HORIZONTAL) {
-    bus.emit(state.name + '-end', state.localIndex)
-    dx1 = t
+    bus.emit(state.name + '-end', state.localIndex);
+    dx1 = t;
   } else {
-    bus.emit(state.name + '-end')
-    dx2 = t
+    bus.emit(state.name + '-end');
+    dx2 = t;
   }
-  _css(el, 'transform', `translate3d(${dx1}px, ${dx2}px, 0)`)
-  state.start.x =
-    state.start.y =
-    state.start.time =
-    state.move.x =
-    state.move.y =
-      0
-  state.next = false
-  state.needCheck = true
-  state.isDown = false
-  // e.target.style.pointerEvents = null
+
+  _css(el, 'transform', `translate3d(${dx1}px, ${dx2}px, 0)`);
+
+  // Reset state values
+  state.start.x = 0;
+  state.start.y = 0;
+  state.start.time = 0;
+  state.move.x = 0;
+  state.move.y = 0;
+  state.next = false;
+  state.needCheck = true;
+  state.isDown = false;
+
   setTimeout(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    window.isMoved = false
-  }, 200)
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  emit?.('update:index', state.localIndex)
+    window.isMoved = false;
+  }, 200);
+
+  emit?.('update:index', state.localIndex);
 }
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function getSlideOffset(state, el: HTMLDivElement) {
+
+export function getSlideOffset(state: StateInterface, el: HTMLDivElement) {
   if (state.type === SlideType.HORIZONTAL) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    let widths = []
+
+    let widths: number[] = []
     Array.from(el.children).map(v => {
       widths.push(v.getBoundingClientRect().width)
     })
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
+
     widths = widths.slice(0, state.localIndex)
     if (widths.length) {
       return -widths.reduce((a, b) => a + b)
@@ -243,14 +271,11 @@ export function getSlideOffset(state, el: HTMLDivElement) {
     if (state.type === SlideType.VERTICAL_INFINITE) {
       return -state.localIndex * state.wrapper.height
     } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      let heights = []
+
+      let heights: number[] = []
       Array.from(el.children).map(v => {
         heights.push(v.getBoundingClientRect().height)
       })
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       heights = heights.slice(0, state.localIndex)
       if (heights.length) return -heights.reduce((a, b) => a + b)
       return 0

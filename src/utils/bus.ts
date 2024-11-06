@@ -1,25 +1,29 @@
+type EventType = string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Callback = (...args: any[]) => void;
+
 export default {
   eventMap: new Map(),
-  on(eventType, cb) {
-    let cbs = this.eventMap.get(eventType)
+  on(eventType: EventType, cb: Callback): void {
+    let cbs = this.eventMap.get(eventType);
     if (cbs) {
-      cbs.push(cb)
+      cbs.push(cb);
     } else {
-      cbs = [cb]
+      cbs = [cb];
     }
     if (cbs.length > 10) {
-      // console.error('eventMap', this.eventMap)
+      console.error('Too many listeners added for event:', eventType);
     }
-    this.eventMap.set(eventType, cbs)
+    this.eventMap.set(eventType, cbs);
   },
-  once(eventType, cb) {
+  once(eventType: EventType, cb: Callback) {
     this.eventMap.set(eventType, [cb])
   },
-  off(eventType, fn) {
+  off(eventType: EventType, fn: Callback) {
     const cbs = this.eventMap.has(eventType)
     if (cbs) {
       if (fn) {
-        const cbs = this.eventMap.get(eventType)
+        const cbs: Callback[] = this.eventMap.get(eventType)
         const rIndex = cbs.findIndex(v => v === fn)
         if (rIndex > -1) {
           cbs.splice(rIndex, 1)
@@ -30,12 +34,12 @@ export default {
       }
     }
   },
-  offAll() {
-    this.eventMap = new Map()
-  },
-  emit(eventType, val?) {
-    // console.log('emit', eventType, val)
-    const cbs = this.eventMap.get(eventType)
+  // offAll() {
+  //   this.eventMap = new Map()
+  // },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  emit(eventType: EventType, val?: any) {
+    const cbs: Callback[] = this.eventMap.get(eventType)
     if (cbs) {
       cbs.map(cb => cb(val))
     }

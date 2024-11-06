@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div>
+  <div class="slide-content_container">
     <h1>Features page title</h1>
 
     <p>

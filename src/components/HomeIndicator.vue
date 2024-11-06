@@ -32,7 +32,7 @@ const props = defineProps({
   isLight: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:index', 'showSlidebar'])
+const emit = defineEmits(['update:index'])
 
 const baseStore = useBaseValues()
 
@@ -50,13 +50,17 @@ const tabs = ref([
 ])
 
 // Computed properties
+const transform = computed(() => {
+  const distance = moveY.value - baseStore.judgeValue.value
+  const maxDistance = baseStore.homeRefresh.value
+
+  return `translate3d(0, ${Math.min(distance, maxDistance)}px, 0)`
+})
+
 const toolbarStyle = computed(() => {
   if (moveY.value) {
     return {
-      opacity:
-        1 -
-        (moveY.value - baseStore.judgeValue.value) /
-          (baseStore.homeRefresh.value / 2),
+      opacity: 1 - (moveY.value - baseStore.judgeValue.value) / (baseStore.homeRefresh.value / 2),
       transform: transform.value,
     }
   }
@@ -65,12 +69,6 @@ const toolbarStyle = computed(() => {
     'transition-duration': '300ms',
     transform: `translate3d(0, 0, 0)`,
   }
-})
-
-const transform = computed(() => {
-  const distance = moveY.value - baseStore.judgeValue.value
-  const maxDistance = baseStore.homeRefresh.value
-  return `translate3d(0, ${Math.min(distance, maxDistance)}px, 0)`
 })
 
 // Lifecycle hooks
@@ -106,7 +104,6 @@ function initTabs() {
   if (!indicatorRef.value) return
   if (!tabsRef.value) return
 
-  // const indicatorWidth = _css(indicatorRef.value, 'width')
 
   Array.from(tabsRef.value.children).forEach((tab, i) => {
     const tabWidth = _css(tab as HTMLElement, 'width')

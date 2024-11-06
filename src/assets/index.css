@@ -76,3 +76,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.slide-content_container {
+  overflow: auto;
+  touch-action: pan-y;
+}

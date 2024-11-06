@@ -17,9 +17,9 @@ const state = reactive({
 <template>
   <div>
     <SlideItem>
-      <HomeIndicator v-model:index="state.navIndex" />
+      <HomeIndicator v-model:index="state.navIndex" name="main" />
 
-      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main-slide">
+      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main">
         <SlideItem>
           <SlideOne :active="state.navIndex === 0" />
         </SlideItem>
