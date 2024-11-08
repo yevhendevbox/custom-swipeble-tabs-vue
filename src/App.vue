@@ -7,7 +7,7 @@ import SlideOne from '@/components/slides/SlideOne.vue'
 import SlideTwo from '@/components/slides/SlideTwo.vue'
 import SlideThree from '@/components/slides/SlideThree.vue'
 import SlideFour from '@/components/slides/SlideFour.vue'
-import { reactive } from 'vue'
+import { reactive, watchEffect } from 'vue'
 
 const state = reactive({
   navIndex: 0
@@ -19,7 +19,7 @@ const state = reactive({
     <SlideItem>
       <HomeIndicator v-model:index="state.navIndex" name="main" />
 
-      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main">
+      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main" :change-active-index-use-anim="false">
         <SlideItem>
           <SlideOne :active="state.navIndex === 0" />
         </SlideItem>

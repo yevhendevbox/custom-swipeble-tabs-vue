@@ -54,19 +54,20 @@ const state = reactive({
 
 watch(
   () => props.index,
-  newVal => {
-    if (state.localIndex !== newVal) {
-      state.localIndex = newVal
-      if (slideListEl.value) {
-        if (props.changeActiveIndexUseAnim) {
-          _css(slideListEl.value, 'transition-duration', `300ms`)
+  (newValue, oldValue) => {
+    if (state.localIndex !== newValue) {
+      state.localIndex = newValue
+
+        if (isAdjacentIndex(oldValue, newValue)) {
+          _css(slideListEl.value as HTMLDivElement, 'transition-duration', `300ms`);
+        } else {
+          _css(slideListEl.value as HTMLDivElement, 'transition-duration', '0ms');
         }
-        _css(
-          slideListEl.value,
-          'transform',
-          `translate3d(${getSlideOffset(state, slideListEl.value as HTMLDivElement)}px, 0, 0)`,
-        )
-      }
+      _css(
+        slideListEl.value as HTMLDivElement,
+        'transform',
+        `translate3d(${getSlideOffset(state, slideListEl.value as HTMLDivElement)}px, 0, 0)`,
+      )
     }
   },
 )
@@ -112,6 +113,11 @@ function touchEnd(e: any) {
   // @ts-expect-error
   slideReset(e, slideListEl.value, state, emit)
 }
+
+function isAdjacentIndex(oldIndex: number, newIndex: number): boolean {
+  return Math.abs(oldIndex - newIndex) === 1;
+}
+
 </script>
 
 <template>
