@@ -19,7 +19,7 @@ const state = reactive({
     <SlideItem>
       <HomeIndicator v-model:index="state.navIndex" name="main" />
 
-      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main" :change-active-index-use-anim="false">
+      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main">
         <SlideItem>
           <SlideOne :active="state.navIndex === 0" />
         </SlideItem>

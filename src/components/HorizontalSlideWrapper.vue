@@ -54,15 +54,21 @@ const state = reactive({
 
 watch(
   () => props.index,
-  (newValue, oldValue) => {
+  (newValue
+    // , oldValue
+  ) => {
     if (state.localIndex !== newValue) {
       state.localIndex = newValue
+        //
+        // if (isAdjacentIndex(oldValue, newValue)) {
+        //   _css(slideListEl.value as HTMLDivElement, 'transition-duration', `300ms`);
+        // } else {
+        //   _css(slideListEl.value as HTMLDivElement, 'transition-duration', '0ms');
+        // }
 
-        if (isAdjacentIndex(oldValue, newValue)) {
-          _css(slideListEl.value as HTMLDivElement, 'transition-duration', `300ms`);
-        } else {
-          _css(slideListEl.value as HTMLDivElement, 'transition-duration', '0ms');
-        }
+      if (props.changeActiveIndexUseAnim) {
+        _css(slideListEl.value as HTMLElement, 'transition-duration', `300ms`)
+      }
       _css(
         slideListEl.value as HTMLDivElement,
         'transform',
