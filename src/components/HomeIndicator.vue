@@ -11,7 +11,6 @@
             @click.stop="change(idx)"
           >
             <span>{{ tab.text }}</span>
-<!--            <img v-if="tab.imgSrc" :src="tab.imgSrc" class="tab-img" />-->
           </div>
         </div>
         <div class="indicator" ref="indicatorRef"></div>
@@ -21,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watchEffect } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watchEffect, watch } from 'vue'
 import { useBaseValues } from '@/composables/useBaseValues'
 import { _css } from '@/utils/dom'
 import bus from '@/utils/bus'
@@ -121,7 +120,14 @@ function initTabs() {
     }
   })
 
-  indicatorSpace.value = lefts.value[1] - lefts.value[0]
+  // indicatorSpace.value = lefts.value[1] - lefts.value[0]
+
+  if (lefts.value.length > 1) {
+    indicatorSpace.value = lefts.value[1] - lefts.value[0]
+    // console.log('intiTab resize toggle', indicatorSpace.value)
+  } else {
+    indicatorSpace.value = 0;
+  }
   updateIndicatorPosition(props.index, 300)
 }
 
@@ -155,6 +161,11 @@ function end(idx: number) {
 watchEffect(() => {
   change(props.index)
 })
+
+watch(
+  () => baseStore.bodyWidth.value,
+  () => initTabs()
+)
 </script>
 
 <style scoped lang="less">

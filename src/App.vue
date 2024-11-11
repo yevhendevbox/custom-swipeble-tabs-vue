@@ -7,7 +7,7 @@ import SlideOne from '@/components/slides/SlideOne.vue'
 import SlideTwo from '@/components/slides/SlideTwo.vue'
 import SlideThree from '@/components/slides/SlideThree.vue'
 import SlideFour from '@/components/slides/SlideFour.vue'
-import { reactive, watchEffect } from 'vue'
+import { reactive } from 'vue'
 
 const state = reactive({
   navIndex: 0
