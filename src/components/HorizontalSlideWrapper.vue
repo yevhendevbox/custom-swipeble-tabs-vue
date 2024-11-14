@@ -120,9 +120,9 @@ function touchEnd(e: any) {
   slideReset(e, slideListEl.value, state, emit)
 }
 
-function isAdjacentIndex(oldIndex: number, newIndex: number): boolean {
-  return Math.abs(oldIndex - newIndex) === 1;
-}
+// function isAdjacentIndex(oldIndex: number, newIndex: number): boolean {
+//   return Math.abs(oldIndex - newIndex) === 1;
+// }
 
 </script>
 

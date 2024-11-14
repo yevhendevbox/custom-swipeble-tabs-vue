@@ -4,6 +4,8 @@ import { SlideType } from '@/utils/const_var'
 import { nextTick } from 'vue'
 import { _css } from '@/utils/dom'
 
+import { useBaseValues } from '@/composables/useBaseValues'
+
 interface CustomPointerEvent extends PointerEvent {
   touches?: Array<{ clientX: number; clientY: number; pageX: number; pageY: number }>;
 }
@@ -37,6 +39,8 @@ interface StateInterface {
     childrenLength: number
   }
 }
+
+const { toggleVerticalScroll } = useBaseValues()
 
 function checkEvent(e: CustomPointerEvent): boolean {
   const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
@@ -148,6 +152,7 @@ export function slideTouchMove(
       _stopPropagation(e);
       if (state.type === SlideType.HORIZONTAL) {
         bus.emit(state.name + '-moveX', state.move.x);
+        toggleVerticalScroll()
       }
       const t =
         getSlideOffset(state, el as HTMLDivElement) +
@@ -249,6 +254,10 @@ export function slideReset(
 
   setTimeout(() => {
     window.isMoved = false;
+
+    if (state.type === SlideType.HORIZONTAL) {
+      toggleVerticalScroll()
+    }
   }, 200);
 
   emit?.('update:index', state.localIndex);

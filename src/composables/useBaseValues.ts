@@ -1,5 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
+const verticalScrollIsBlocked = ref(false)
 export function useBaseValues() {
   const isMobile = ref(/Mobi|Android|iPhone/i.test(navigator.userAgent))
 
@@ -12,6 +13,10 @@ export function useBaseValues() {
   const updateDimensions = () => {
     bodyHeight.value = document.body.clientHeight
     bodyWidth.value = document.body.clientWidth
+  }
+
+  function toggleVerticalScroll() {
+    verticalScrollIsBlocked.value = !verticalScrollIsBlocked.value
   }
 
   onMounted(() => {
@@ -28,6 +33,8 @@ export function useBaseValues() {
     judgeValue,
     homeRefresh,
     loading,
-    isMobile
+    isMobile,
+    toggleVerticalScroll,
+    verticalScrollIsBlocked
   }
 }
