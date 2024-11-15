@@ -8,7 +8,7 @@
             :key="idx"
             :class="{ active: index === idx }"
             class="tab"
-            @click.stop="change(idx)"
+            @click.stop="change(idx), emit('update', idx)"
           >
             <span>{{ tab.text }}</span>
           </div>
@@ -31,7 +31,8 @@ const props = defineProps({
   isLight: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:index'])
+// const emit = defineEmits(['update:index'])
+const emit = defineEmits(['update'])
 
 const baseStore = useBaseValues()
 
@@ -85,7 +86,7 @@ onUnmounted(() => {
 })
 
 function change(idx: number) {
-  emit('update:index', idx)
+  // emit('update:index', idx)
   updateIndicatorPosition(idx, 300)
 
   if (tabsRef.value) {

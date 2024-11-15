@@ -1,16 +1,9 @@
 <script setup lang="ts">
-const props = withDefaults(
-  defineProps<{
-    active: boolean
-  }>(),
-  {
-    active: false,
-  }
-)
+
 </script>
 
 <template>
-  <div v-if="props.active">
+  <div>
     <h1>Features page title</h1>
 
     <p>
