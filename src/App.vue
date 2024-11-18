@@ -11,7 +11,7 @@ import SlideOne from '@/components/slides/SlideOne.vue'
 import SlideTwo from '@/components/slides/SlideTwo.vue'
 import SlideThree from '@/components/slides/SlideThree.vue'
 import SlideFour from '@/components/slides/SlideFour.vue'
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useBaseValues } from '@/composables/useBaseValues'
 import { SlideType } from '@/utils/const_var'
 import { type CustomPointerEvent } from '@/utils/slide'
@@ -20,9 +20,11 @@ import {
   slideTouchEnd,
   slideTouchMove,
   slideTouchStart,
+  slideReset,
+  slideInit
 } from '@/utils/slide'
 
-const { verticalScrollIsBlocked } = useBaseValues()
+const { verticalScrollIsBlocked, isMobile } = useBaseValues()
 
 const swiperRef = ref<SwiperType | null>(null)
 const navIndex = ref(0)
@@ -69,7 +71,22 @@ function onTouchMove(swiper: SwiperType, event: MouseEvent | TouchEvent | Pointe
 
 function onTouchEnd(swiper: SwiperType, event: MouseEvent | TouchEvent | PointerEvent) {
   slideTouchEnd(event as CustomPointerEvent, state)
+
+  slideReset(event as CustomPointerEvent, swiper.wrapperEl, state)
 }
+
+watch(
+  () => isMobile.value,
+  (newValue) => {
+    if (swiperRef.value) {
+      swiperRef.value.allowTouchMove = newValue;
+    }
+  }
+)
+
+onMounted(() => {
+  slideInit(swiperRef.value?.wrapperEl as HTMLElement, state)
+})
 </script>
 <template>
   <div>
@@ -108,24 +125,6 @@ function onTouchEnd(swiper: SwiperType, event: MouseEvent | TouchEvent | Pointer
           </SlideItem>
         </SwiperSlide>
       </Swiper>
-
-<!--      <HorizontalSlideWrapper v-model:index="state.navIndex" name="main" :change-active-index-use-anim="false">-->
-<!--        <SlideItem>-->
-<!--          <SlideOne :active="state.navIndex === 0" :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>-->
-<!--        </SlideItem>-->
-
-<!--        <SlideItem>-->
-<!--          <SlideTwo :active="state.navIndex === 1" :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>-->
-<!--        </SlideItem>-->
-
-<!--        <SlideItem>-->
-<!--          <SlideThree :active="state.navIndex === 2" :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>-->
-<!--        </SlideItem>-->
-
-<!--        <SlideItem>-->
-<!--          <SlideFour :active="state.navIndex === 3" :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>-->
-<!--        </SlideItem>-->
-<!--      </HorizontalSlideWrapper>-->
     </SlideItem>
   </div>
 </template>
