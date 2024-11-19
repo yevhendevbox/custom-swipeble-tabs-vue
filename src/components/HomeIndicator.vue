@@ -104,6 +104,8 @@ function initTabs() {
   if (!indicatorRef.value) return
   if (!tabsRef.value) return
 
+  lefts.value = [];
+
   Array.from(tabsRef.value.children).forEach((tab, i) => {
     const tabWidth = _css(tab as HTMLElement, 'width')
 
@@ -121,13 +123,7 @@ function initTabs() {
   })
 
   indicatorSpace.value = lefts.value[1] - lefts.value[0]
-  // console.log('intiTab resize toggle', indicatorSpace.value)
 
-  // if (lefts.value.length > 1) {
-  //   indicatorSpace.value = lefts.value[1] - lefts.value[0]
-  // } else {
-  //   indicatorSpace.value = 0;
-  // }
   updateIndicatorPosition(props.index, 300)
 }
 
