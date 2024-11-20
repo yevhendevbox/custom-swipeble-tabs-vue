@@ -260,8 +260,8 @@ export function slideReset(
     // }
   }, 200);
 
-  // emit?.('update:index', state.localIndex);
-  emit?.('update', state.localIndex);
+  emit?.('update:index', state.localIndex);
+  // emit?.('update', state.localIndex);
 }
 
 export function getSlideOffset(state: StateInterface, el: HTMLDivElement) {
