@@ -2303,6 +2303,11 @@ util-deprecate@^1.0.2:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
+v-slick-carousel@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/v-slick-carousel/-/v-slick-carousel-0.5.0.tgz#d2feef055c0ed400deedd505b14d18170e373c37"
+  integrity sha512-0Hl7S4iHabfGlxQTAiBlqqYLGY4P08geOdGhKxH5bBtsaf2XU2OmllxpHEiAMAY7ewFgEHNL0VYlo0Z4xph2dg==
+
 vite@^5.4.10:
   version "5.4.10"
   resolved "https://registry.yarnpkg.com/vite/-/vite-5.4.10.tgz#d358a7bd8beda6cf0f3b7a450a8c7693a4f80c18"

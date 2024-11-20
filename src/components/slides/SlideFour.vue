@@ -1,16 +1,16 @@
 <script setup lang="ts">
-  const props = withDefaults(
-    defineProps<{
-      active: boolean
-    }>(),
-    {
-      active: false,
-    }
-  )
+  // const props = withDefaults(
+  //   defineProps<{
+  //     active: boolean
+  //   }>(),
+  //   {
+  //     active: false,
+  //   }
+  // )
 </script>
 
 <template>
-  <div v-if="props.active">
+  <div>
     <h1>Favorites page title</h1>
 
     <p>
