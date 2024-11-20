@@ -84,6 +84,13 @@ watch(
   }
 )
 
+watch(
+  () => navIndex.value,
+  (newValue) => {
+    setActiveSlide(newValue)
+  }
+)
+
 onMounted(() => {
   slideInit(swiperRef.value?.wrapperEl as HTMLElement, state)
 })
@@ -91,10 +98,11 @@ onMounted(() => {
 <template>
   <div>
     <SlideItem>
-      <HomeIndicator @update="setActiveSlide($event)" :index="navIndex" name="main"  />
+      <HomeIndicator v-model:index="navIndex" name="main"  />
 
       <Swiper
         :slides-per-view="1"
+        :allow-touch-move="isMobile"
         @slide-change="onSlideChange"
         @swiper="onSwiperInit"
         @touch-start="onTouchStart"
