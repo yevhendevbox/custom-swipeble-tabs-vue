@@ -3,7 +3,6 @@ import 'swiper/css';
 
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { type Swiper as SwiperType } from 'swiper/types'
-// import HorizontalSlideWrapper from '@/components/HorizontalSlideWrapper.vue'
 import SlideItem from '@/components/SlideItem.vue'
 import HomeIndicator from '@/components/HomeIndicator.vue'
 
@@ -12,7 +11,6 @@ import SlideTwo from '@/components/slides/SlideTwo.vue'
 import SlideThree from '@/components/slides/SlideThree.vue'
 import SlideFour from '@/components/slides/SlideFour.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
-import { useBaseValues } from '@/composables/useBaseValues'
 import { SlideType } from '@/utils/const_var'
 import { type CustomPointerEvent } from '@/utils/slide'
 
@@ -24,7 +22,16 @@ import {
   slideInit
 } from '@/utils/slide'
 
-const { verticalScrollIsBlocked, isMobile } = useBaseValues()
+const breakpoints = {
+  640: {
+    allowTouchMove: false,
+    onlyExternal: true,
+  },
+  639: {
+    allowTouchMove: true,
+    onlyExternal: false,
+  },
+}
 
 const swiperRef = ref<SwiperType | null>(null)
 const navIndex = ref(0)
@@ -49,6 +56,8 @@ const state = reactive({
 
 function onSlideChange(swiper: SwiperType) {
   navIndex.value = swiper.activeIndex
+
+  state.localIndex = swiper.activeIndex
 }
 
 function onSwiperInit(swiper: SwiperType) {
@@ -57,6 +66,7 @@ function onSwiperInit(swiper: SwiperType) {
 
 function setActiveSlide(index: number) {
   navIndex.value = index
+  state.localIndex = index
 
   swiperRef.value?.slideTo(index)
 }
@@ -75,19 +85,19 @@ function onTouchEnd(swiper: SwiperType, event: MouseEvent | TouchEvent | Pointer
   slideReset(event as CustomPointerEvent, swiper.wrapperEl, state)
 }
 
-watch(
-  () => isMobile.value,
-  (newValue) => {
-    if (swiperRef.value) {
-      swiperRef.value.allowTouchMove = newValue;
-    }
+function updateSwiperSettings() {
+  if (swiperRef.value) {
+    const isDesktop = window.innerWidth >= 640;
+    swiperRef.value.allowTouchMove = !isDesktop;
+    swiperRef.value.update();
   }
-)
+}
 
 watch(
   () => navIndex.value,
   (newValue) => {
     setActiveSlide(newValue)
+    updateSwiperSettings()
   }
 )
 
@@ -101,35 +111,36 @@ onMounted(() => {
       <HomeIndicator v-model:index="navIndex" name="main"  />
 
       <Swiper
-        :slides-per-view="1"
-        :allow-touch-move="isMobile"
         @slide-change="onSlideChange"
         @swiper="onSwiperInit"
         @touch-start="onTouchStart"
         @touch-move="onTouchMove"
         @touch-end="onTouchEnd"
+        :slides-per-view="1"
+        :breakpoints="breakpoints"
+        :simulate-touch="true"
       >
         <SwiperSlide>
           <SlideItem>
-            <SlideOne :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>
+            <SlideOne/>
           </SlideItem>
         </SwiperSlide>
 
         <SwiperSlide>
           <SlideItem>
-            <SlideTwo :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>
+            <SlideTwo/>
           </SlideItem>
         </SwiperSlide>
 
         <SwiperSlide>
           <SlideItem>
-            <SlideThree :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>
+            <SlideThree/>
           </SlideItem>
         </SwiperSlide>
 
         <SwiperSlide>
           <SlideItem>
-            <SlideFour :class="{ 'slide-content_container': !verticalScrollIsBlocked }"/>
+            <SlideFour/>
           </SlideItem>
         </SwiperSlide>
       </Swiper>

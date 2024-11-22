@@ -4,8 +4,6 @@ import { SlideType } from '@/utils/const_var'
 import { nextTick } from 'vue'
 import { _css } from '@/utils/dom'
 
-// import { useBaseValues } from '@/composables/useBaseValues'
-
 export interface CustomPointerEvent extends PointerEvent {
   touches?: Array<{ clientX: number; clientY: number; pageX: number; pageY: number }>;
 }
@@ -255,13 +253,8 @@ export function slideReset(
   setTimeout(() => {
     window.isMoved = false;
 
-    // if (state.type === SlideType.HORIZONTAL) {
-    //   toggleVerticalScroll()
-    // }
   }, 200);
-
   emit?.('update:index', state.localIndex);
-  // emit?.('update', state.localIndex);
 }
 
 export function getSlideOffset(state: StateInterface, el: HTMLDivElement) {
